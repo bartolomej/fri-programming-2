@@ -15,4 +15,14 @@ public class Utils {
             System.out.print(e + " ");
         }
     }
+
+    public static void print(int[][] array) {
+        System.out.println();
+        for (int[] x : array) {
+            for (int y : x) {
+                System.out.print(y + " ");
+            }
+            System.out.println();
+        }
+    }
 }
