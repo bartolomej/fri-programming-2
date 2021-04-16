@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -26,11 +26,26 @@ public class DN08 {
     public static void main(String[] args) throws FileNotFoundException {
         String method = args.length > 0 ? args[0] : "example";
         switch (method) {
-            case "example" -> runExample();
-            case "analiza" -> runAnalizo(args[1]);
-            case "izrisi_poplavo" -> runIzrisTerena(args[1], args[2], Double.parseDouble(args[3]));
-            case "porocilo_skode" -> runPorociloSkode(args[1], args[2], args[3], Double.parseDouble(args[4]));
-            case "nacrt_pobega" -> runNacrtPobega(args[1], args[2], args[3], Double.parseDouble(args[4]));
+            case "example": {
+                runExample();
+                break;
+            }
+            case "analiza": {
+                runAnalizo(args[1]);
+                break;
+            }
+            case "izrisi_poplavo": {
+                runIzrisTerena(args[1], args[2], Double.parseDouble(args[3]));
+                break;
+            }
+            case "porocilo_skode": {
+                runPorociloSkode(args[1], args[2], args[3], Double.parseDouble(args[4]));
+                break;
+            }
+            case "nacrt_pobega": {
+                runNacrtPobega(args[1], args[2], args[3], Double.parseDouble(args[4]));
+                break;
+            }
         }
     }
 
@@ -51,7 +66,7 @@ public class DN08 {
         runPorociloSkode("visinska", terenFile, tipiFile, 2.1);
 
         printSectionTitle("POROCILO SKODE - kolicinska poplava");
-        runPorociloSkode("kolicinska", terenFile, tipiFile, 100);
+        runPorociloSkode("kolicinska", terenFile, tipiFile, 1000);
 
         printSectionTitle("NACRT POBEGA - visinska poplava");
         runNacrtPobega("visinska", terenFile, tipiFile, 2.1);
@@ -61,7 +76,7 @@ public class DN08 {
     }
 
     private static void printSectionTitle(String title) {
-        System.out.printf("\n\n\n%s %s %s\n\n", "-".repeat(6), title, "-".repeat(6));
+        System.out.printf("\n\n\n%s %s %s\n\n", repeat("-", 6), title, repeat("-", 6));
     }
 
     private static void runAnalizo(String inputFile) throws FileNotFoundException {
@@ -71,30 +86,48 @@ public class DN08 {
         for (int i = 0; i < visine.length; i++) {
             System.out.printf("Visina %d: %dx\n", i, visine[i]);
         }
-        System.out.printf("Povprecna visina: %.2f\n", povprecnaVisina(teren));
+        System.out.println(String.format("Povprecna visina: %.2f", povprecnaVisina(teren)).replace('.', ','));
     }
 
     private static void runIzrisTerena(String tipPoplave, String terenFile, double kolicina) throws FileNotFoundException {
         int[][] teren = preberiTeren(terenFile);
         switch (tipPoplave) {
-            case "visinska" -> izrisiPoplavo(teren, visinskaPoplava(teren, kolicina));
-            case "kolicinska" -> izrisiPoplavo(teren, kolicinskaPoplava(teren, kolicina));
+            case "visinska": {
+                izrisiPoplavo(teren, visinskaPoplava(teren, kolicina));
+                break;
+            }
+            case "kolicinska": {
+                izrisiPoplavo(teren, kolicinskaPoplava(teren, kolicina));
+                break;
+            }
         }
     }
 
     private static void runPorociloSkode(String tipPoplave, String terenFile, String tipiFile, double kolicina) throws FileNotFoundException {
         int[][] teren = preberiTeren(terenFile);
         switch (tipPoplave) {
-            case "visinska" -> porociloSkode(teren, preberiTipParcel(tipiFile), visinskaPoplava(teren, kolicina));
-            case "kolicinska" -> porociloSkode(teren, preberiTipParcel(tipiFile), kolicinskaPoplava(teren, kolicina));
+            case "visinska": {
+                porociloSkode(teren, preberiTipParcel(tipiFile), visinskaPoplava(teren, kolicina));
+                break;
+            }
+            case "kolicinska": {
+                porociloSkode(teren, preberiTipParcel(tipiFile), kolicinskaPoplava(teren, kolicina));
+                break;
+            }
         }
     }
 
     private static void runNacrtPobega(String tipPoplave, String terenFile, String tipiFile, double kolicina) throws FileNotFoundException {
         int[][] teren = preberiTeren(terenFile);
         switch (tipPoplave) {
-            case "visinska" -> nacrtPobega(teren, preberiTipParcel(tipiFile), visinskaPoplava(teren, kolicina));
-            case "kolicinska" -> nacrtPobega(teren, preberiTipParcel(tipiFile), kolicinskaPoplava(teren, kolicina));
+            case "visinska": {
+                nacrtPobega(teren, preberiTipParcel(tipiFile), visinskaPoplava(teren, kolicina));
+                break;
+            }
+            case "kolicinska": {
+                nacrtPobega(teren, preberiTipParcel(tipiFile), kolicinskaPoplava(teren, kolicina));
+                break;
+            }
         }
     }
 
@@ -213,8 +246,8 @@ public class DN08 {
                 }
             }
         }
-        System.out.format("%21s%11s%21s\n", "Tip parcele", "Število", "Ocenjena škoda");
-        System.out.println("-".repeat(53));
+        System.out.format("%21s%11s%21s\n", "Tip parcele", "Stevilo", "Ocenjena skoda");
+        System.out.println(repeat("-", 53));
         double skodaSum = 0;
         int countSum = 0;
         for (int i = 0; i < tipiParcel.length; i++) {
@@ -223,18 +256,14 @@ public class DN08 {
             countSum += count[i];
             System.out.format("%21s%11s%21s\n", tipiParcel[i], count[i], formatMoney(skoda));
         }
-        System.out.println("-".repeat(53));
+        System.out.println(repeat("-", 53));
         System.out.format("%21s%11s%21s\n", "SKUPAJ", countSum, formatMoney(skodaSum));
 
     }
 
     private static String formatMoney(double value) {
-        Locale locale = new Locale("sl", "SI");
-        DecimalFormat formatter = (DecimalFormat) DecimalFormat.getCurrencyInstance(locale);
-        DecimalFormatSymbols symbol = new DecimalFormatSymbols(locale);
-        symbol.setCurrencySymbol("EUR");
-        formatter.setDecimalFormatSymbols(symbol);
-        return formatter.format(value);
+        DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance(Locale.GERMAN);
+        return String.format("%s,00 EUR", formatter.format(value));
     }
 
 
@@ -244,7 +273,7 @@ public class DN08 {
         int[] visine = prestejVisine(teren);
         int visineSum1 = 0;
         int visineSum2 = 0;
-        double dosezenaVisina = 0;
+        double dosezenaVisina = visine.length;
         for (int i = 0; i < visine.length; i++) {
             visineSum1 = visineSum2;
             for (int j = i; j >= 0; j--) {
@@ -323,13 +352,32 @@ public class DN08 {
             } else {
                 // premakni se v zahtevano smer
                 switch (direction) {
-                    case 1 -> i--;
-                    case 2 -> j++;
-                    case 3 -> i++;
-                    case 4 -> j--;
+                    case 1: {
+                        i--;
+                        break;
+                    }
+                    case 2: {
+                        j++;
+                        break;
+                    }
+                    case 3: {
+                        i++;
+                        break;
+                    }
+                    case 4: {
+                        j--;
+                        break;
+                    }
                 }
             }
         }
     }
 
+    private static String repeat(String value, int n) {
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            out.append(value);
+        }
+        return out.toString();
+    }
 }
