@@ -24,20 +24,78 @@ public class DN08 {
     };
 
     public static void main(String[] args) throws FileNotFoundException {
-        int[][] teren = preberiTeren("src/teren.txt");
+        String method = args.length > 0 ? args[0] : "example";
+        switch (method) {
+            case "example" -> runExample();
+            case "analiza" -> runAnalizo(args[1]);
+            case "izrisi_poplavo" -> runIzrisTerena(args[1], args[2], Double.parseDouble(args[3]));
+            case "porocilo_skode" -> runPorociloSkode(args[1], args[2], args[3], Double.parseDouble(args[4]));
+            case "nacrt_pobega" -> runNacrtPobega(args[1], args[2], args[3], Double.parseDouble(args[4]));
+        }
+    }
+
+    private static void runExample() throws FileNotFoundException {
+        String terenFile = "src/teren.txt";
+        String tipiFile = "src/kategorije_parcel.txt";
+
+        printSectionTitle("ANALIZA");
+        runAnalizo(terenFile);
+
+        printSectionTitle("IZRIS TERENA - visinska poplava");
+        runIzrisTerena("visinska", terenFile, 2.1);
+
+        printSectionTitle("IZRIS TERENA - kolicinska poplava");
+        runIzrisTerena("kolicinska", terenFile, 100);
+
+        printSectionTitle("POROCILO SKODE - visinska poplava");
+        runPorociloSkode("visinska", terenFile, tipiFile, 2.1);
+
+        printSectionTitle("POROCILO SKODE - kolicinska poplava");
+        runPorociloSkode("kolicinska", terenFile, tipiFile, 100);
+
+        printSectionTitle("NACRT POBEGA - visinska poplava");
+        runNacrtPobega("visinska", terenFile, tipiFile, 2.1);
+
+        printSectionTitle("NACRT POBEGA - kolicinska poplava");
+        runNacrtPobega("kolicinska", terenFile, tipiFile, 100);
+    }
+
+    private static void printSectionTitle(String title) {
+        System.out.printf("\n\n\n%s %s %s\n\n", "-".repeat(6), title, "-".repeat(6));
+    }
+
+    private static void runAnalizo(String inputFile) throws FileNotFoundException {
+        int[][] teren = preberiTeren(inputFile);
         izrisTerena(teren);
         int[] visine = prestejVisine(teren);
         for (int i = 0; i < visine.length; i++) {
             System.out.printf("Visina %d: %dx\n", i, visine[i]);
         }
         System.out.printf("Povprecna visina: %.2f\n", povprecnaVisina(teren));
-        int[][] tipiParcel = preberiTipParcel("src/kategorije_parcel.txt");
-        boolean[][] visinskaPoplava = visinskaPoplava(teren, 2.1);
-        izrisiPoplavo(teren, visinskaPoplava);
-        porociloSkode(teren, tipiParcel, visinskaPoplava);
-        boolean[][] kolicinskaPoplava = kolicinskaPoplava(teren, 100);
-        izrisiPoplavo(teren, kolicinskaPoplava);
-        nacrtPobega(teren, tipiParcel, kolicinskaPoplava);
+    }
+
+    private static void runIzrisTerena(String tipPoplave, String terenFile, double kolicina) throws FileNotFoundException {
+        int[][] teren = preberiTeren(terenFile);
+        switch (tipPoplave) {
+            case "visinska" -> izrisiPoplavo(teren, visinskaPoplava(teren, kolicina));
+            case "kolicinska" -> izrisiPoplavo(teren, kolicinskaPoplava(teren, kolicina));
+        }
+    }
+
+    private static void runPorociloSkode(String tipPoplave, String terenFile, String tipiFile, double kolicina) throws FileNotFoundException {
+        int[][] teren = preberiTeren(terenFile);
+        switch (tipPoplave) {
+            case "visinska" -> porociloSkode(teren, preberiTipParcel(tipiFile), visinskaPoplava(teren, kolicina));
+            case "kolicinska" -> porociloSkode(teren, preberiTipParcel(tipiFile), kolicinskaPoplava(teren, kolicina));
+        }
+    }
+
+    private static void runNacrtPobega(String tipPoplave, String terenFile, String tipiFile, double kolicina) throws FileNotFoundException {
+        int[][] teren = preberiTeren(terenFile);
+        switch (tipPoplave) {
+            case "visinska" -> nacrtPobega(teren, preberiTipParcel(tipiFile), visinskaPoplava(teren, kolicina));
+            case "kolicinska" -> nacrtPobega(teren, preberiTipParcel(tipiFile), kolicinskaPoplava(teren, kolicina));
+        }
     }
 
     // NALOGA 1
