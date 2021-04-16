@@ -32,9 +32,11 @@ public class DN08 {
         }
         System.out.printf("Povprecna visina: %.2f\n", povprecnaVisina(teren));
         int[][] tipiParcel = preberiTipParcel("src/kategorije_parcel.txt");
-        boolean[][] poplava = visinskaPoplava(teren, 2.1);
-        izrisiPoplavo(teren, poplava);
-        porociloSkode(teren, tipiParcel, poplava);
+        boolean[][] visinskaPoplava = visinskaPoplava(teren, 2.1);
+        izrisiPoplavo(teren, visinskaPoplava);
+        porociloSkode(teren, tipiParcel, visinskaPoplava);
+        boolean[][] kolicinskaPoplava = kolicinskaPoplava(teren, 100);
+        izrisiPoplavo(teren, kolicinskaPoplava);
     }
 
     // NALOGA 1
@@ -174,6 +176,27 @@ public class DN08 {
         symbol.setCurrencySymbol("EUR");
         formatter.setDecimalFormatSymbols(symbol);
         return formatter.format(value);
+    }
+
+
+    // NALOGA 3
+
+    public static boolean[][] kolicinskaPoplava(int[][] teren, double kolicina) {
+        int[] visine = prestejVisine(teren);
+        int visineSum1 = 0;
+        int visineSum2 = 0;
+        double dosezenaVisina = 0;
+        for (int i = 0; i < visine.length; i++) {
+            visineSum1 = visineSum2;
+            for (int j = i; j >= 0; j--) {
+                visineSum2 += visine[j];
+            }
+            if (visineSum2 > kolicina) {
+                dosezenaVisina = i + (kolicina - visineSum1) / visineSum2;
+                break;
+            }
+        }
+        return visinskaPoplava(teren, dosezenaVisina);
     }
 
 }
