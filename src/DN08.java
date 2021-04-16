@@ -37,17 +37,18 @@ public class DN08 {
         porociloSkode(teren, tipiParcel, visinskaPoplava);
         boolean[][] kolicinskaPoplava = kolicinskaPoplava(teren, 100);
         izrisiPoplavo(teren, kolicinskaPoplava);
+        nacrtPobega(teren, tipiParcel, kolicinskaPoplava);
     }
 
     // NALOGA 1
 
     public static void izrisTerena(int[][] teren) {
-       for (int[] line : teren) {
-           for (int height : line) {
-               System.out.print(heightMap[height]);
-           }
-           System.out.println();
-       }
+        for (int[] line : teren) {
+            for (int height : line) {
+                System.out.print(heightMap[height]);
+            }
+            System.out.println();
+        }
     }
 
     public static double povprecnaVisina(int[][] teren) {
@@ -128,7 +129,7 @@ public class DN08 {
 
     public static boolean[][] visinskaPoplava(int[][] teren, double visinaPoplave) {
         boolean[][] poplava = new boolean[teren.length][teren[0].length];
-        for (int i = 0; i < teren.length; i ++) {
+        for (int i = 0; i < teren.length; i++) {
             for (int j = 0; j < teren[i].length; j++) {
                 poplava[i][j] = teren[i][j] < visinaPoplave;
             }
@@ -162,7 +163,7 @@ public class DN08 {
             double skoda = count[i] * vrednostiTipovParcel[i];
             skodaSum += skoda;
             countSum += count[i];
-            System.out.format("%21s%11s%21s\n",tipiParcel[i], count[i], formatMoney(skoda));
+            System.out.format("%21s%11s%21s\n", tipiParcel[i], count[i], formatMoney(skoda));
         }
         System.out.println("-".repeat(53));
         System.out.format("%21s%11s%21s\n", "SKUPAJ", countSum, formatMoney(skodaSum));
@@ -197,6 +198,80 @@ public class DN08 {
             }
         }
         return visinskaPoplava(teren, dosezenaVisina);
+    }
+
+
+    // NALOGA 4
+
+    public static void nacrtPobega(int[][] teren, int[][] tipParcele, boolean[][] poplava) {
+        int nSafe = 0;
+        int nCanEscape = 0;
+        int nNeedHelp = 0;
+        for (int i = 0; i < teren.length; i++) {
+            for (int j = 0; j < teren[i].length; j++) {
+                if (tipParcele[i][j] != 3) {
+                    // preskoci parcelo, ce ni tipa "BIVALNO POSLOPJE"
+                    continue;
+                }
+                if (poplava[i][j]) {
+                    if (canEscape(teren, poplava, i, j)) {
+                        nCanEscape++;
+                    } else {
+                        nNeedHelp++;
+                    }
+                } else {
+                    nSafe++;
+                }
+            }
+        }
+        System.out.printf("Varne hise: %d\n", nSafe);
+        System.out.printf("Lahko pobegnejo: %d\n", nCanEscape);
+        System.out.printf("Potrebujejo pomoc: %d\n", nNeedHelp);
+    }
+
+    private static boolean canEscape(int[][] teren, boolean[][] poplava, int x, int y) {
+        int i = x, j = y;
+        while (true) {
+            int maxHeight = teren[i][j];
+            int current;
+            int direction = 0;
+            // Zahod
+            current = j > 0 ? teren[i][j - 1] : 0;
+            if (current > maxHeight) {
+                maxHeight = current;
+                direction = 4;
+            }
+            // Jug
+            current = i < teren.length - 1 ? teren[i + 1][j] : 0;
+            if (current > maxHeight) {
+                maxHeight = current;
+                direction = 3;
+
+            }
+            // Vzhod
+            current = j < teren[i].length - 1 ? teren[i][j + 1] : 0;
+            if (current > maxHeight) {
+                maxHeight = current;
+                direction = 2;
+            }
+            // Sever
+            current = i > 0 ? teren[i - 1][j] : 0;
+            if (current > maxHeight) {
+                direction = 1;
+            }
+            // noben pogoj se ni izvedel => noben sosed ni visji od trenutnega
+            if (direction == 0) {
+                return !poplava[i][j];
+            } else {
+                // premakni se v zahtevano smer
+                switch (direction) {
+                    case 1 -> i--;
+                    case 2 -> j++;
+                    case 3 -> i++;
+                    case 4 -> j--;
+                }
+            }
+        }
     }
 
 }
