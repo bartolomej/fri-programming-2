@@ -1,5 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class DN08 {
@@ -28,7 +31,13 @@ public class DN08 {
             System.out.printf("Visina %d: %dx\n", i, visine[i]);
         }
         System.out.printf("Povprecna visina: %.2f\n", povprecnaVisina(teren));
+        int[][] tipiParcel = preberiTipParcel("src/kategorije_parcel.txt");
+        boolean[][] poplava = visinskaPoplava(teren, 2.1);
+        izrisiPoplavo(teren, poplava);
+        porociloSkode(teren, tipiParcel, poplava);
     }
+
+    // NALOGA 1
 
     public static void izrisTerena(int[][] teren) {
        for (int[] line : teren) {
@@ -78,6 +87,93 @@ public class DN08 {
             col = 0;
         }
         return table;
+    }
+
+
+    // NALOGA 2
+
+    public static int[][] preberiTipParcel(String filename) throws FileNotFoundException {
+        Scanner scanner = new Scanner(new File(filename));
+        int nRows = scanner.nextInt();
+        int nCols = scanner.nextInt();
+        scanner.nextLine();
+        int[][] table = new int[nRows][nCols];
+        int row = 0;
+        int col = 0;
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            for (int i = 0; i < line.length(); i++) {
+                char c = line.charAt(i);
+                table[row][col] = indexOfParcelType(c);
+                col++;
+
+            }
+            row++;
+            col = 0;
+        }
+        return table;
+    }
+
+    private static int indexOfParcelType(char c) {
+        int index = -1;
+        for (int i = 0; i < tipiParcel.length; i++) {
+            if (tipiParcel[i].charAt(0) == c) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    public static boolean[][] visinskaPoplava(int[][] teren, double visinaPoplave) {
+        boolean[][] poplava = new boolean[teren.length][teren[0].length];
+        for (int i = 0; i < teren.length; i ++) {
+            for (int j = 0; j < teren[i].length; j++) {
+                poplava[i][j] = teren[i][j] < visinaPoplave;
+            }
+        }
+        return poplava;
+    }
+
+    public static void izrisiPoplavo(int[][] teren, boolean[][] poplava) {
+        for (int i = 0; i < teren.length; i++) {
+            for (int j = 0; j < teren[i].length; j++) {
+                System.out.print(poplava[i][j] ? '~' : heightMap[teren[i][j]]);
+            }
+            System.out.println();
+        }
+    }
+
+    public static void porociloSkode(int[][] teren, int[][] tipParcele, boolean[][] poplava) {
+        int[] count = new int[tipiParcel.length];
+        for (int i = 0; i < teren.length; i++) {
+            for (int j = 0; j < teren[i].length; j++) {
+                if (poplava[i][j]) {
+                    count[tipParcele[i][j]]++;
+                }
+            }
+        }
+        System.out.format("%21s%11s%21s\n", "Tip parcele", "Število", "Ocenjena škoda");
+        System.out.println("-".repeat(53));
+        double skodaSum = 0;
+        int countSum = 0;
+        for (int i = 0; i < tipiParcel.length; i++) {
+            double skoda = count[i] * vrednostiTipovParcel[i];
+            skodaSum += skoda;
+            countSum += count[i];
+            System.out.format("%21s%11s%21s\n",tipiParcel[i], count[i], formatMoney(skoda));
+        }
+        System.out.println("-".repeat(53));
+        System.out.format("%21s%11s%21s\n", "SKUPAJ", countSum, formatMoney(skodaSum));
+
+    }
+
+    private static String formatMoney(double value) {
+        Locale locale = new Locale("sl", "SI");
+        DecimalFormat formatter = (DecimalFormat) DecimalFormat.getCurrencyInstance(locale);
+        DecimalFormatSymbols symbol = new DecimalFormatSymbols(locale);
+        symbol.setCurrencySymbol("EUR");
+        formatter.setDecimalFormatSymbols(symbol);
+        return formatter.format(value);
     }
 
 }
