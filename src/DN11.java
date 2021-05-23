@@ -2,41 +2,63 @@ import java.io.*;
 import java.util.*;
 
 public class DN11 {
-    public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            // run test cases
-            test();
-            return;
-        }
-        Kataster k = new Kataster();
-        switch (args[0]) {
-            case "mejniki": {
-                k.importMejniki(args[1]);
-                k.printMejniki();
-                break;
+    public static void main(String[] args) {
+        try {
+            if (args.length == 0) {
+                // run test cases
+                System.out.println("Runnning examples!!");
+                example();
+                return;
             }
-            case "razdalja": {
-                k.importMejniki(args[1]);
-                k.printDistanceBetween(args[2], args[3]);
-                break;
+            Kataster k = new Kataster();
+            switch (args[0]) {
+                case "mejniki": {
+                    k.importMejniki(args[1]);
+                    k.printMejniki();
+                    break;
+                }
+                case "razdalja": {
+                    k.importMejniki(args[1]);
+                    k.printDistanceBetween(args[2], args[3]);
+                    break;
+                }
+                case "parcele": {
+                    k.importMejniki(args[1]);
+                    k.importParcele(args[2]);
+                    k.printParcele();
+                    break;
+                }
+                case "ograja": {
+                    k.importMejniki(args[1]);
+                    k.importParcele(args[2]);
+                    k.printParcelWithShortestFence();
+                    break;
+                }
+                case "bin": {
+                    k.importLegacyFile(args[1]);
+                    k.printMejniki();
+                    break;
+                }
+                case "sosed": {
+                    k.importMejniki(args[1]);
+                    k.importParcele(args[2]);
+                    k.printLargestNeighborParcel(args[3], args[4]);
+                    break;
+                }
+                default: {
+                    System.out.println("Command not found!");
+                }
             }
-            case "parcele": {
-                k.importMejniki(args[1]);
-                k.importParcele(args[2]);
-                k.printParcele();
+        } catch (Exception e) {
+            // print debug info if the --debug flag is present
+            if (args.length == 0 || args[args.length - 1].equals("--debug")) {
+                e.printStackTrace();
             }
-            case "bin": {
-                k.importLegacyFile(args[1]);
-                k.printMejniki();
-                break;
-            }
-            default: {
-                System.out.println("Command not found!");
-            }
+            System.out.println(e.getMessage());
         }
     }
 
-    private static void test() throws Exception {
+    private static void example() throws Exception {
         // NALOGA 1
         Kataster k = new Kataster();
         k.importMejniki("./src/primer_mejniki.txt");
@@ -54,7 +76,7 @@ public class DN11 {
 
         // NALOGA 5
         Kataster l = new Kataster();
-        l.importLegacyFile("./src/primer_mejniki.bin");
+        l.importLegacyFile("./src/mejniki.bin");
         l.printMejniki();
         l.importParcele("./src/primer_parcele.txt");
 
@@ -67,11 +89,11 @@ class Mejnik implements Comparable<Mejnik>, Cloneable {
 
     private String name;
     // zemljepisna sirina
-    private float latitude;
+    private double latitude;
     // zemljepisna dolzina
-    private float longitude;
+    private double longitude;
 
-    public Mejnik(String name, float latitude, float longitude) {
+    public Mejnik(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -84,18 +106,25 @@ class Mejnik implements Comparable<Mejnik>, Cloneable {
     }
 
     private static float decodeGeoPointPart(String value, boolean isLongitude) {
-        int degrees = Integer.parseInt(value.substring(0, 2));
-        int minutes = Integer.parseInt(value.substring(3, 5));
-        double seconds = Double.parseDouble(value.substring(6, 10));
-        // TODO: set +- based on S/N W/E
-        return (float) (degrees + (float)(minutes) / 60 + seconds / 3600);
+        int i0 = value.indexOf('*');
+        int i1 = value.indexOf('\'');
+        int i2 = value.indexOf('"');
+        int degrees = Integer.parseInt(value.substring(0, i0));
+        int minutes = Integer.parseInt(value.substring(i0 + 1, i1));
+        double seconds = Double.parseDouble(value.substring(i1 + 1, i2));
+        char c = value.charAt(i2 + 1);
+        // NOTE: Test 17 (Copacabana) has c=M for some reason
+        int sign = !isLongitude
+                ? c == 'S' ? -1 : 1
+                : c == 'W' ? -1 : 1;
+        return sign * (float)(degrees + (float)(minutes) / 60 + seconds / 3600);
     }
 
-    private static String encodeGeoPointPart(float value, boolean isLongitude) {
-        float absValue = Math.abs(value);
+    private static String encodeGeoPointPart(double value, boolean isLongitude) {
+        double absValue = Math.abs(value);
         int degrees = (int) absValue;
         int minutes = (int)((absValue - degrees) * 60);
-        float seconds = (absValue - degrees - (float)minutes / 60) * 3600;
+        double seconds = (absValue - degrees - (float)minutes / 60) * 3600;
         String postfix = "";
         if (value != 0) {
             postfix = !isLongitude
@@ -113,19 +142,19 @@ class Mejnik implements Comparable<Mejnik>, Cloneable {
         return name;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
     public static double distance(Mejnik a, Mejnik b) {
-        float dLatitude = a.getLatitude() - b.getLatitude();
-        float dLongitude = a.getLongitude() - b.getLongitude();
-        float dx = dLatitude * 60 * 1825;
-        float dy = dLongitude * 60 * 1290;
+        double dLatitude = a.getLatitude() - b.getLatitude();
+        double dLongitude = a.getLongitude() - b.getLongitude();
+        double dx = dLatitude * 60 * 1852;
+        double dy = dLongitude * 60 * 1290;
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
@@ -195,7 +224,7 @@ class Kataster {
             if (this.exists(parts[0])) {
                 continue;
             }
-            Mejnik m = new Mejnik(parts[0], Float.parseFloat(parts[1]), Float.parseFloat(parts[2]));
+            Mejnik m = new Mejnik(parts[0], Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
             mejniki.add(m);
         }
     }
@@ -238,7 +267,7 @@ class Kataster {
     public void printParcelWithShortestFence() {
         Parcela smallest = parcele.get(0);
         for (Parcela p : parcele) {
-            if (p.obseg() < smallest.obseg()) {
+            if (p.obseg() <= smallest.obseg()) {
                 smallest = p;
             }
         }
@@ -281,9 +310,16 @@ class Kataster {
         int degrees = encoded[0];
         int minutes = encoded[1];
         int tenths = encoded[3];
-        double seconds = encoded[2] + (float)(tenths) / 10;
+        double seconds = encoded[2] + (float)(Kataster.leftMostDigit(tenths)) / 10;
         char c = (char)encoded[4];
         return String.format("%d*%02d'%04.1f\"%C", degrees, minutes, seconds, c);
+    }
+
+    private static int leftMostDigit(int n) {
+        while (n >= 10) {
+            n /= 10;
+        }
+        return n;
     }
 
     public void printLargestNeighborParcel(String katastrskaObcina, String stevilka) throws Exception {
@@ -291,7 +327,7 @@ class Kataster {
         Parcela source = this.find(katastrskaObcina, stevilka);
         Parcela target = null;
         for (Parcela p : this.parcele) {
-            if (p.jeSosednja(source) && p.povrsina() > max) {
+            if (p.jeSosednja(source) && p.cenaParcele() > max) {
                 target = p;
             }
         }
