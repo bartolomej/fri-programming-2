@@ -37,23 +37,28 @@ public class DN11 {
     }
 
     private static void test() throws Exception {
-        Mejnik m = new Mejnik("test", 46.050389f, 14.468778f);
-        System.out.println(m);
-
+        // NALOGA 1
         Kataster k = new Kataster();
         k.importMejniki("./src/primer_mejniki.txt");
         k.printMejniki();
+
+        // NALOGA 2
         k.printDistanceBetween("m01", "m02");
+
+        // NALOGA 3
         k.importParcele("./src/primer_parcele.txt");
         k.printParcele();
 
+        // NALOGA 4
         k.printParcelWithShortestFence();
 
+        // NALOGA 5
         Kataster l = new Kataster();
         l.importLegacyFile("./src/primer_mejniki.bin");
         l.printMejniki();
         l.importParcele("./src/primer_parcele.txt");
 
+        // NALOGA 6
         l.printLargestNeighborParcel("Butale", "113/11");
     }
 }
@@ -82,16 +87,18 @@ class Mejnik implements Comparable<Mejnik>, Cloneable {
         int degrees = Integer.parseInt(value.substring(0, 2));
         int minutes = Integer.parseInt(value.substring(3, 5));
         double seconds = Double.parseDouble(value.substring(6, 10));
+        // TODO: set +- based on S/N W/E
         return (float) (degrees + (float)(minutes) / 60 + seconds / 3600);
     }
 
     private static String encodeGeoPointPart(float value, boolean isLongitude) {
-        int degrees = (int) value;
-        int minutes = (int)((value - degrees) * 60);
-        float seconds = (value - degrees - (float)minutes / 60) * 3600;
+        float absValue = Math.abs(value);
+        int degrees = (int) absValue;
+        int minutes = (int)((absValue - degrees) * 60);
+        float seconds = (absValue - degrees - (float)minutes / 60) * 3600;
         String postfix = "";
         if (value != 0) {
-            postfix = isLongitude
+            postfix = !isLongitude
                     ? value < 0 ? "S" : "N"
                     : value < 0 ? "W" : "E";
         }
@@ -99,7 +106,7 @@ class Mejnik implements Comparable<Mejnik>, Cloneable {
     }
 
     public String toString() {
-        return String.format("Mejnik %s (%s %s)", this.name, Mejnik.encodeGeoPointPart(this.latitude, false), Mejnik.encodeGeoPointPart(this.longitude, false));
+        return String.format("Mejnik %s (%s %s)", this.name, Mejnik.encodeGeoPointPart(this.latitude, false), Mejnik.encodeGeoPointPart(this.longitude, true));
     }
 
     public String getName() {
