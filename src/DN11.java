@@ -241,11 +241,25 @@ class Kataster {
     public void importLegacyFile(String filePath) throws IOException {
         InputStream inputStream = new FileInputStream(filePath);
         while (inputStream.available() > 0) {
-            byte[] encodedName = inputStream.readNBytes(10);
-            byte[] encodedLatitude = inputStream.readNBytes(5);
-            byte[] encodedLongitude = inputStream.readNBytes(5);
+            byte[] encodedName = this.readNBytes(10, inputStream);
+            byte[] encodedLatitude = this.readNBytes(5, inputStream);
+            byte[] encodedLongitude = this.readNBytes(5, inputStream);
             mejniki.add(new Mejnik(decodeName(encodedName), decodeGeoPointPart(encodedLatitude), decodeGeoPointPart(encodedLongitude)));
         }
+    }
+
+    private byte[] readNBytes(int n, InputStream stream) throws IOException {
+        int i = 0;
+        byte[] bytes = new byte[n];
+        while (i < n) {
+            int b = stream.read();
+            if (b == -1) {
+                return bytes;
+            }
+            bytes[i] = (byte)b;
+            i++;
+        }
+        return bytes;
     }
 
     private String decodeName(byte[] encoded) {
@@ -346,7 +360,7 @@ abstract class Parcela {
 
 class KmetijskaParcela extends Parcela {
 
-    private HashMap<String, Double> cenaMap = new HashMap<>(){{
+    private HashMap<String, Double> cenaMap = new HashMap<String, Double>(){{
         put("NJIVA", 3.12);
         put("TRAVNIK", 1.42);
         put("PASNIK", 1.69);
