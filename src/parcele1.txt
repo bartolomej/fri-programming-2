@@ -1,0 +1,18 @@
+NJIVA Ljubljana 1859 kamen_4 kamen_3 kamen_6 kamen_5
+STAVBA Ljubljana 113/11 kamen_1 kamen_2 kamen_3 kamen_4 2812.3
+STAVBA Barje 1001 m11 m12 m14 m13 42.5
+TRAVNIK Barje 1002 m13 m14 m17 m16
+DRUGO Barje 1003 m16 m09 m11 m13
+NJIVA Barje 1004 m14 m12 m18 m17
+STAVBA Barje 1005 m09 m10 m12 m11 50
+NJIVA Barje 1006 m12 m10 m08 m18
+STAVBA Barje 1007 m07 m08 m10 m09 234.5
+STAVBA Barje 1008 m06 m07 m09 m16 30.4
+GOZD Barje 1009 m05 m06 m16 m15
+TRAVNIK Barje 1010 m16 m17 m22 m21
+GOZD Barje 1011 m15 m16 m21 m19
+NJIVA Barje 1012 m17 m18 m20 m22
+NJIVA Barje 1013 m08 m04 m20 m18
+PASNIK Barje 1014 m03 m04 m08 m07
+DRUGO Barje 1015 m02 m03 m07 m06
+GOZD Barje 1016 m01 m02 m06 m05
