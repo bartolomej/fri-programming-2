@@ -113,7 +113,6 @@ class Mejnik implements Comparable<Mejnik>, Cloneable {
         int minutes = Integer.parseInt(value.substring(i0 + 1, i1));
         double seconds = Double.parseDouble(value.substring(i1 + 1, i2));
         char c = value.charAt(i2 + 1);
-        // NOTE: Test 17 (Copacabana) has c=M for some reason
         int sign = !isLongitude
                 ? c == 'S' ? -1 : 1
                 : c == 'W' ? -1 : 1;
@@ -217,6 +216,24 @@ class Kataster {
         return false;
     }
 
+    private void addMejnik(Mejnik mejnik) {
+        for (Mejnik m : mejniki) {
+            if (m.getName().equals(mejnik.getName())) {
+                return;
+            }
+        }
+        mejniki.add(mejnik);
+    }
+
+    private void addParcela(Parcela parcela) {
+        for (Parcela p : parcele) {
+            if (p.equals(parcela)) {
+                return;
+            }
+        }
+        parcele.add(parcela);
+    }
+
     public void importMejniki(String filename) throws FileNotFoundException {
         Scanner sc = new Scanner(new File(filename));
         while (sc.hasNextLine()) {
@@ -224,8 +241,7 @@ class Kataster {
             if (this.exists(parts[0])) {
                 continue;
             }
-            Mejnik m = new Mejnik(parts[0], Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-            mejniki.add(m);
+            addMejnik(new Mejnik(parts[0], Double.parseDouble(parts[1]), Double.parseDouble(parts[2])));
         }
     }
 
@@ -239,9 +255,9 @@ class Kataster {
             m.add(this.find(parts[5]));
             m.add(this.find(parts[6]));
             if (parts[0].equals("STAVBA")) {
-                parcele.add(new StavbnaParcela(Double.parseDouble(parts[7]), parts[2], parts[1], m));
+                addParcela(new StavbnaParcela(Double.parseDouble(parts[7]), parts[2], parts[1], m));
             } else {
-                parcele.add(new KmetijskaParcela(parts[0], parts[2], parts[1], m));
+                addParcela(new KmetijskaParcela(parts[0], parts[2], parts[1], m));
             }
         }
     }
@@ -280,7 +296,7 @@ class Kataster {
             byte[] encodedName = this.readNBytes(10, inputStream);
             byte[] encodedLatitude = this.readNBytes(5, inputStream);
             byte[] encodedLongitude = this.readNBytes(5, inputStream);
-            mejniki.add(new Mejnik(decodeName(encodedName), decodeGeoPointPart(encodedLatitude), decodeGeoPointPart(encodedLongitude)));
+            addMejnik(new Mejnik(decodeName(encodedName), decodeGeoPointPart(encodedLatitude), decodeGeoPointPart(encodedLongitude)));
         }
     }
 
@@ -329,6 +345,7 @@ class Kataster {
         for (Parcela p : this.parcele) {
             if (p.jeSosednja(source) && p.cenaParcele() > max) {
                 target = p;
+                max = p.cenaParcele();
             }
         }
         if (target == null) {
