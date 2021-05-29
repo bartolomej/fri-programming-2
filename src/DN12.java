@@ -3,11 +3,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Calculator {
+public class DN12 {
     private JFrame frame;
     private JTextField textField;
 
-    public Calculator() {
+    public DN12() {
         frame = new JFrame("Calculator");
         frame.setResizable(false);
         frame.setSize(400, 600);
@@ -17,7 +17,7 @@ public class Calculator {
     }
 
     public static void main(String[] args) {
-        new Calculator();
+        new DN12();
     }
 
     private JPanel generateLayout() {
