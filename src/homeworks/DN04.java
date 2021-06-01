@@ -1,3 +1,5 @@
+package homeworks;
+
 import java.security.InvalidParameterException;
 
 public class DN04 {

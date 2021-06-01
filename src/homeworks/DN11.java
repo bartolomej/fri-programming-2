@@ -1,3 +1,5 @@
+package homeworks;
+
 import java.io.*;
 import java.util.*;
 
@@ -61,14 +63,14 @@ public class DN11 {
     private static void example() throws Exception {
         // NALOGA 1
         Kataster k = new Kataster();
-        k.importMejniki("./src/primer_mejniki.txt");
+        k.importMejniki("./src/homeworks/primer_mejniki.txt");
         k.printMejniki();
 
         // NALOGA 2
         k.printDistanceBetween("m01", "m02");
 
         // NALOGA 3
-        k.importParcele("./src/primer_parcele.txt");
+        k.importParcele("./src/homeworks/primer_parcele.txt");
         k.printParcele();
 
         // NALOGA 4
@@ -76,9 +78,9 @@ public class DN11 {
 
         // NALOGA 5
         Kataster l = new Kataster();
-        l.importLegacyFile("./src/mejniki.bin");
+        l.importLegacyFile("./src/homeworks/mejniki.bin");
         l.printMejniki();
-        l.importParcele("./src/primer_parcele.txt");
+        l.importParcele("./src/homeworks/primer_parcele.txt");
 
         // NALOGA 6
         l.printLargestNeighborParcel("Butale", "113/11");

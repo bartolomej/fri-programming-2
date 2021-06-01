@@ -1,3 +1,5 @@
+package homeworks;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -6,7 +8,7 @@ import java.util.Scanner;
 public class DN10 {
 
     public static void main(String[] args) throws FileNotFoundException {
-        String filepath = args.length > 0 ? args[0] : "src/liki.txt";
+        String filepath = args.length > 0 ? args[0] : "src/homeworks/liki.txt";
         ArrayList<Lik> liki = preberi(filepath);
         System.out.printf("%.2f", ploscina(liki));
     }

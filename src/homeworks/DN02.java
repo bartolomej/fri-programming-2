@@ -1,3 +1,5 @@
+package homeworks;
+
 import java.util.Arrays;
 
 public class DN02 {
