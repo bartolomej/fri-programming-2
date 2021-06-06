@@ -7,22 +7,15 @@ public class Q13 {
         pitagoroviTrojcki(125);
     }
 
-    // TODO: doesn't work
     static void pitagoroviTrojcki(int limit) {
-        int a, b, c = 0;
-        int m = 2;
-        while (c < limit) {
-            for (int n = 1; n < m; ++n) {
-                a = m * m - n * n;
-                b = 2 * m * n;
-                c = m * m + n * n;
-
-                if (c > limit)
-                    break;
-
-                System.out.printf("%d %d %d\n", a, b, c);
+        for (int a = 1; a <= limit; a++) {
+            for (int b = a + 1; b <= limit; b++) {
+                for (int c = b + 1; c <= limit; c++) {
+                    if (a * a + b * b == c * c) {
+                        System.out.printf("%d %d %d\n", a, b, c);
+                    }
+                }
             }
-            m++;
         }
     }
 }
